@@ -43,7 +43,6 @@ struct DashboardView: View {
             scannedMessages = messages
         case .failure(let error):
             print("NFC scanning failed:", error)
-            // Optionally update UI to show error
         }
     }
 }
