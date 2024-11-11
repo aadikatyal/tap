@@ -7,12 +7,10 @@ struct ContentView: View {
     @State private var userFirstName: String = UserDefaults.standard.string(forKey: "userFirstName") ?? "user"
 
     var body: some View {
-        NavigationStack {
+        NavigationView {
             VStack(spacing: 30) {
                 if isAuthenticated {
-                    Text("welcome back, \(userFirstName)!")
-                        .font(.headline)
-                        .padding()
+                    DashboardView(firstName: $userFirstName, isAuthenticated: $isAuthenticated)
                 } else {
                     if colorScheme == .dark {
                         Image("WhiteLogo")
@@ -43,9 +41,6 @@ struct ContentView: View {
             }
             .padding()
             .background(Color(UIColor.systemBackground))
-            .navigationDestination(isPresented: $isAuthenticated) {
-                DashboardView(firstName: $userFirstName, isAuthenticated: $isAuthenticated)
-            }
             .onAppear {
                 checkCredentialState()
             }
@@ -86,9 +81,9 @@ struct ContentView: View {
             DispatchQueue.main.async {
                 switch credentialState {
                 case .authorized:
-                    self.isAuthenticated = true
+                    isAuthenticated = true
                 case .revoked, .notFound:
-                    self.isAuthenticated = false
+                    isAuthenticated = false
                     UserDefaults.standard.removeObject(forKey: "userID")
                 default:
                     break
