@@ -1,112 +1,111 @@
 import SwiftUI
 import CoreNFC
+import CloudKit
 
 struct DashboardView: View {
     @Binding var firstName: String
     @Binding var isAuthenticated: Bool
     @State private var showSettings = false
     @State private var showLogOutConfirmation = false
+    @State private var showScanResults = false
+    @State private var showWriteModal = false
+    @State private var showSavedTags = false
     @State private var nfcManager = NFCManager()
     @State private var scannedMessages: [NFCNDEFMessage] = []
+    @State private var savedMessages: [String] = []
 
     var body: some View {
-        VStack {
-            List(scannedMessages, id: \.self) { message in
-                ForEach(message.records, id: \.self) { record in
-                    Text(String(decoding: record.payload, as: UTF8.self))
+        List {
+            Section {
+                Button(action: {
+                    showSavedTags.toggle()
+                }) {
+                    HStack {
+                        Text("saved messages")
+                        Spacer()
+                        Image(systemName: "bookmark.circle")
+                            .foregroundColor(.blue)
+                    }
                 }
             }
-            Spacer()
         }
-        .navigationBarBackButtonHidden(true)
+        .navigationTitle("welcome \(firstName.lowercased())")
+        .navigationBarTitleDisplayMode(.inline)
         .navigationBarItems(
             leading: Button(action: {
                 showSettings.toggle()
             }) {
                 Image(systemName: "gear")
             },
-            trailing: Button("scan") {
-                nfcManager.onNFCResult = handleNFCResult
-                nfcManager.beginSession()
+            trailing: Menu {
+                Button("read", action: startReading)
+                Button("write") {
+                    showWriteModal = true
+                }
+            } label: {
+                Image(systemName: "plus.circle")
+            }
+            .sheet(isPresented: $showWriteModal) {
+                WriteNFCView()
+            }
+            .sheet(isPresented: $showScanResults) {
+                ScanResultsView(scannedMessages: $scannedMessages, onSave: saveScannedMessage)
             }
         )
-        .navigationTitle("welcome \(firstName.lowercased())")
-        .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showSettings) {
             SettingsView(firstName: $firstName, isAuthenticated: $isAuthenticated, showLogOutConfirmation: $showLogOutConfirmation)
         }
+        .sheet(isPresented: $showSavedTags) {
+            SavedTagsView(savedMessages: $savedMessages)
+        }
+        .onAppear {
+            loadSavedMessagesFromCloud()
+            firstName = NSUbiquitousKeyValueStore.default.string(forKey: "userFirstName") ?? "user"
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSUbiquitousKeyValueStore.didChangeExternallyNotification)) { _ in
+            loadSavedMessagesFromCloud()
+            firstName = NSUbiquitousKeyValueStore.default.string(forKey: "userFirstName") ?? firstName
+        }
     }
     
+    // function to start NFC reading session
+    func startReading() {
+        nfcManager.onNFCResult = { result in
+            handleNFCResult(result: result)
+        }
+        nfcManager.beginSession()
+    }
+    
+    // function to handle nfc results
     func handleNFCResult(result: Result<[NFCNDEFMessage], Error>) {
+        showScanResults = false
         switch result {
         case .success(let messages):
             scannedMessages = messages
+            DispatchQueue.main.async {
+                showScanResults = true
+            }
         case .failure(let error):
-            print("NFC scanning failed:", error)
+            print("nfc scanning failed:", error)
         }
     }
-}
-
-struct SettingsView: View {
-    @Binding var firstName: String
-    @Binding var isAuthenticated: Bool
-    @State private var showNameEdit = false
-    @Binding var showLogOutConfirmation: Bool
-
-    var body: some View {
-        NavigationView {
-            List {
-                Section(header: Text("profile")) {
-                    Button(action: {
-                        showNameEdit = true
-                    }) {
-                        HStack {
-                            Text("name")
-                            Spacer()
-                            Text(firstName)
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    Button("my saved tags") {
-                        // to do
-                    }
-                }
-                
-                Section {
-                    Button("log out") {
-                        showLogOutConfirmation = true
-                    }
-                    .alert("are you sure you want to log out?", isPresented: $showLogOutConfirmation) {
-                        Button("cancel", role: .cancel) {}
-                        Button("log out", role: .destructive) {
-                            isAuthenticated = false
-                            UserDefaults.standard.removeObject(forKey: "userID")
-                        }
-                    }
-                }
-            }
-            .navigationTitle("settings")
-            .sheet(isPresented: $showNameEdit) {
-                NameEditView(firstName: $firstName)
-            }
+    
+    // save scanned message to iCloud Key-Value storage
+    func saveScannedMessage(_ message: String) {
+        let formattedMessage = ensureHttpsPrefix(for: message)
+        savedMessages.append(formattedMessage)
+        NSUbiquitousKeyValueStore.default.set(savedMessages, forKey: "savedLinks")
+    }
+    
+    // load saved messages from iCloud Key-Value storage
+    func loadSavedMessagesFromCloud() {
+        if let loadedMessages = NSUbiquitousKeyValueStore.default.array(forKey: "savedLinks") as? [String] {
+            savedMessages = loadedMessages
         }
     }
-}
-
-struct NameEditView: View {
-    @Binding var firstName: String
-    @Environment(\.presentationMode) var presentationMode
-
-    var body: some View {
-        NavigationView {
-            Form {
-                TextField("enter your name", text: $firstName)
-            }
-            .navigationBarTitle("edit name", displayMode: .inline)
-            .navigationBarItems(trailing: Button("Done") {
-                UserDefaults.standard.set(firstName, forKey: "userFirstName")
-                presentationMode.wrappedValue.dismiss()
-            })
-        }
+    
+    // Helper function to add "https://" prefix if missing
+    private func ensureHttpsPrefix(for message: String) -> String {
+        return message.hasPrefix("http") ? message : "https://\(message)"
     }
 }
