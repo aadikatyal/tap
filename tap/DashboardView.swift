@@ -15,56 +15,58 @@ struct DashboardView: View {
     @State private var savedMessages: [String] = []
 
     var body: some View {
-        List {
-            Section {
-                Button(action: {
-                    showSavedTags.toggle()
-                }) {
-                    HStack {
-                        Text("saved messages")
-                        Spacer()
-                        Image(systemName: "bookmark.circle")
-                            .foregroundColor(.blue)
+        NavigationView { // Wrapping the entire content with NavigationView
+            List {
+                Section {
+                    Button(action: {
+                        showSavedTags.toggle()
+                    }) {
+                        HStack {
+                            Text("saved messages")
+                            Spacer()
+                            Image(systemName: "bookmark.circle")
+                                .foregroundColor(.blue)
+                        }
                     }
                 }
             }
-        }
-        .navigationTitle("welcome \(firstName.lowercased())")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarItems(
-            leading: Button(action: {
-                showSettings.toggle()
-            }) {
-                Image(systemName: "gear")
-            },
-            trailing: Menu {
-                Button("read", action: startReading)
-                Button("write") {
-                    showWriteModal = true
+            .navigationTitle("welcome \(firstName.lowercased())")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(
+                leading: Button(action: {
+                    showSettings.toggle()
+                }) {
+                    Image(systemName: "gear")
+                },
+                trailing: Menu {
+                    Button("read", action: startReading)
+                    Button("write") {
+                        showWriteModal = true
+                    }
+                } label: {
+                    Image(systemName: "plus.circle")
                 }
-            } label: {
-                Image(systemName: "plus.circle")
+                .sheet(isPresented: $showWriteModal) {
+                    WriteNFCView()
+                }
+                .sheet(isPresented: $showScanResults) {
+                    ScanResultsView(scannedMessages: $scannedMessages, onSave: saveScannedMessage)
+                }
+            )
+            .sheet(isPresented: $showSettings) {
+                SettingsView(firstName: $firstName, isAuthenticated: $isAuthenticated)
             }
-            .sheet(isPresented: $showWriteModal) {
-                WriteNFCView()
+            .sheet(isPresented: $showSavedTags) {
+                SavedTagsView(savedMessages: $savedMessages)
             }
-            .sheet(isPresented: $showScanResults) {
-                ScanResultsView(scannedMessages: $scannedMessages, onSave: saveScannedMessage)
+            .onAppear {
+                loadSavedMessagesFromCloud()
+                firstName = NSUbiquitousKeyValueStore.default.string(forKey: "userFirstName") ?? "user"
             }
-        )
-        .sheet(isPresented: $showSettings) {
-            SettingsView(firstName: $firstName, isAuthenticated: $isAuthenticated, showLogOutConfirmation: $showLogOutConfirmation)
-        }
-        .sheet(isPresented: $showSavedTags) {
-            SavedTagsView(savedMessages: $savedMessages)
-        }
-        .onAppear {
-            loadSavedMessagesFromCloud()
-            firstName = NSUbiquitousKeyValueStore.default.string(forKey: "userFirstName") ?? "user"
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSUbiquitousKeyValueStore.didChangeExternallyNotification)) { _ in
-            loadSavedMessagesFromCloud()
-            firstName = NSUbiquitousKeyValueStore.default.string(forKey: "userFirstName") ?? firstName
+            .onReceive(NotificationCenter.default.publisher(for: NSUbiquitousKeyValueStore.didChangeExternallyNotification)) { _ in
+                loadSavedMessagesFromCloud()
+                firstName = NSUbiquitousKeyValueStore.default.string(forKey: "userFirstName") ?? firstName
+            }
         }
     }
     
