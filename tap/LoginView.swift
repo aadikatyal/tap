@@ -1,10 +1,17 @@
+//
+//  LoginView.swift
+//  tap
+//
+//  Created by Aadi Katyal on 11/18/24.
+//
+
 import SwiftUI
 import AuthenticationServices
 
-struct ContentView: View {
+struct LoginView: View {
     @Environment(\.colorScheme) var colorScheme
-    @State private var isAuthenticated = false
-    @State private var userFirstName: String = UserDefaults.standard.string(forKey: "userFirstName") ?? "user"
+    @Binding var isAuthenticated: Bool
+        @Binding var userFirstName: String
 
     var body: some View {
         NavigationView {
@@ -64,15 +71,18 @@ struct ContentView: View {
                 }
             }
             isAuthenticated = true
+            UserDefaults.standard.set(true, forKey: "isAuthenticated") // Persist authentication state
         case .failure(let error):
             print("authorization failed: \(error)")
             isAuthenticated = false
+            UserDefaults.standard.set(false, forKey: "isAuthenticated")
         }
     }
 
     private func checkCredentialState() {
         guard let userID = UserDefaults.standard.string(forKey: "userID") else {
             isAuthenticated = false
+            UserDefaults.standard.set(false, forKey: "isAuthenticated")
             return
         }
 
@@ -82,9 +92,11 @@ struct ContentView: View {
                 switch credentialState {
                 case .authorized:
                     isAuthenticated = true
+                    UserDefaults.standard.set(true, forKey: "isAuthenticated")
                 case .revoked, .notFound:
                     isAuthenticated = false
                     UserDefaults.standard.removeObject(forKey: "userID")
+                    UserDefaults.standard.set(false, forKey: "isAuthenticated")
                 default:
                     break
                 }

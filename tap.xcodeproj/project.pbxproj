@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		CD42426F2CBDB8EA00155119 /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDA9B62E2CBD8B2D004F179C /* CoreNFC.framework */; };
+		CD4805B72CEC0A8B00C30C4C /* Stripe in Frameworks */ = {isa = PBXBuildFile; productRef = CD4805B62CEC0A8B00C30C4C /* Stripe */; };
+		CD4805B92CEC0A8B00C30C4C /* StripeApplePay in Frameworks */ = {isa = PBXBuildFile; productRef = CD4805B82CEC0A8B00C30C4C /* StripeApplePay */; };
+		CD4805BB2CEC0A8B00C30C4C /* StripeCardScan in Frameworks */ = {isa = PBXBuildFile; productRef = CD4805BA2CEC0A8B00C30C4C /* StripeCardScan */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,7 +73,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD4805BB2CEC0A8B00C30C4C /* StripeCardScan in Frameworks */,
+				CD4805B92CEC0A8B00C30C4C /* StripeApplePay in Frameworks */,
 				CD42426F2CBDB8EA00155119 /* CoreNFC.framework in Frameworks */,
+				CD4805B72CEC0A8B00C30C4C /* Stripe in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +146,9 @@
 			);
 			name = tap;
 			packageProductDependencies = (
+				CD4805B62CEC0A8B00C30C4C /* Stripe */,
+				CD4805B82CEC0A8B00C30C4C /* StripeApplePay */,
+				CD4805BA2CEC0A8B00C30C4C /* StripeCardScan */,
 			);
 			productName = tap;
 			productReference = CD94CD682CB8A5B9006C6BD0 /* tap.app */;
@@ -223,6 +232,9 @@
 			);
 			mainGroup = CD94CD5F2CB8A5B9006C6BD0;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CD4805B52CEC0A8B00C30C4C /* XCRemoteSwiftPackageReference "stripe-ios" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CD94CD692CB8A5B9006C6BD0 /* Products */;
 			projectDirPath = "";
@@ -430,13 +442,13 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = tap/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = tap;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_NFCReaderUsageDescription = "NFC tag to read NDEF messages into the application";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				"IPHONEOS_DEPLOYMENT_TARGET[sdk=iphoneos*]" = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -466,13 +478,13 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = tap/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = tap;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_NFCReaderUsageDescription = "NFC tag to read NDEF messages into the application";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				"IPHONEOS_DEPLOYMENT_TARGET[sdk=iphoneos*]" = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -600,6 +612,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CD4805B52CEC0A8B00C30C4C /* XCRemoteSwiftPackageReference "stripe-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/stripe/stripe-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 24.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CD4805B62CEC0A8B00C30C4C /* Stripe */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CD4805B52CEC0A8B00C30C4C /* XCRemoteSwiftPackageReference "stripe-ios" */;
+			productName = Stripe;
+		};
+		CD4805B82CEC0A8B00C30C4C /* StripeApplePay */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CD4805B52CEC0A8B00C30C4C /* XCRemoteSwiftPackageReference "stripe-ios" */;
+			productName = StripeApplePay;
+		};
+		CD4805BA2CEC0A8B00C30C4C /* StripeCardScan */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CD4805B52CEC0A8B00C30C4C /* XCRemoteSwiftPackageReference "stripe-ios" */;
+			productName = StripeCardScan;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CD94CD602CB8A5B9006C6BD0 /* Project object */;
 }
